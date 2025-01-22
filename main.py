@@ -60,6 +60,8 @@ async def update_embed_time(announcement_message, embed):
         await asyncio.sleep(30)  # อัปเดตทุก 30 วินาที
 
     if remaining_time <= 0 and lotto_running:
+        embed.set_field_at(0, name="⏳ เวลากิจกรรมคงเหลือ:", value="🕗 หมดเวลากิจกรรมแล้ว", inline=False)
+        await announcement_message.edit(embed=embed)  # อัปเดตข้อความ Embed เป็น "หมดเวลา"
         await announcement_message.channel.send("🕗 หมดเวลาการเข้าร่วมเกมแล้ว ต่อไปจะเป็นการประกาศรางวัลผู้โชคดี \n -------------------------")
         lotto_running = False
         await asyncio.sleep(5)
