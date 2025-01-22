@@ -114,24 +114,29 @@ async def lotto(ctx, hour: int, minute: int):
         try:
             msg = await bot.wait_for("message", timeout=2, check=lambda m: m.channel == ctx.channel and not m.author.bot)
             
-            # ตรวจสอบรูปแบบตัวเลข
-            if not msg.content.isdigit() or len(msg.content) != 3:
-                continue
+            # ตรวจสอบว่าข้อความเป็นตัวเลข
+            if msg.content.isdigit():
+                if len(msg.content) != 3:
+                    await msg.reply(f"❗ กรุณากรอกตัวเลขในรูปแบบ 3 หลัก เช่น 000, 001 หรือ 123!", delete_after=5)
+                    continue
 
-            number = int(msg.content)
+                number = int(msg.content)
 
-            # ตรวจสอบว่าหมายเลขอยู่ในช่วงที่อนุญาต
-            if number < number_range[0] or number > number_range[1]:
-                await msg.reply(f"❗ หมายเลข {msg.content} ไม่อยู่ในช่วงที่อนุญาต (000-999)!", delete_after=5)
-            elif msg.author in players:
-                await msg.reply("❗ คุณได้เลือกตัวเลขไปแล้วและไม่สามารถเปลี่ยนได้!", delete_after=5)
-            elif number in chosen_numbers:
-                available_numbers = get_available_numbers()
-                await msg.reply(f"❗ ตัวเลข {msg.content} ถูกเลือกไปแล้ว! เราขอแนะนำชุดตัวเลขที่ยังสามารถเลือกได้ ดังนี้: {', '.join(map(str, available_numbers))}", delete_after=10 )
+                # ตรวจสอบว่าหมายเลขอยู่ในช่วงที่อนุญาต
+                if number < number_range[0] or number > number_range[1]:
+                    await msg.reply(f"❗ หมายเลข {msg.content} ไม่อยู่ในช่วงที่อนุญาต (000-999)!", delete_after=5)
+                elif msg.author in players:
+                    await msg.reply("❗ คุณได้เลือกตัวเลขไปแล้วและไม่สามารถเปลี่ยนได้!", delete_after=5)
+                elif number in chosen_numbers:
+                    available_numbers = get_available_numbers()
+                    await msg.reply(f"❗ ตัวเลข {msg.content} ถูกเลือกไปแล้ว! เราขอแนะนำชุดตัวเลขที่ยังสามารถเลือกได้ ดังนี้: {', '.join(map(str, available_numbers))}", delete_after=10 )
+                else:
+                    players[msg.author] = number
+                    chosen_numbers.add(number)
+                    await msg.add_reaction("✅")
             else:
-                players[msg.author] = number
-                chosen_numbers.add(number)
-                await msg.add_reaction("✅")
+                # ถ้าข้อความไม่ใช่ตัวเลข หรือเป็นข้อความ
+                continue
 
         except asyncio.TimeoutError:
             pass   
@@ -149,7 +154,9 @@ async def lotto(ctx, hour: int, minute: int):
     used_winners = set()
 
     # นับถอยหลัง 5 วินาที ก่อนประกาศผู้ชนะ
-    await ctx.send("⏳ กรุณารอซักครู่ เรากำลังประมวลผลรายชื่อผู้โชคดี \nและผู้ชนะรางวัลได้แก่....")
+    await ctx.send("⏳ กรุณารอซักครู่ เรากำลังประมวลผลรายชื่อผู้โชคดี")
+    await asyncio.sleep(7)
+    await ctx.send("🏆 และผู้ชนะรางวัลได้แก่....")
     await asyncio.sleep(7)
 
     async def confirm_winner(winner):
