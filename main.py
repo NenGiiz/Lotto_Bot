@@ -51,7 +51,7 @@ def is_admin(ctx):
 async def update_embed_time(announcement_message, embed):
     global announcement_time, lotto_running
     while lotto_running:
-        now = datetime.now()
+        now = datetime.now(tz)
         remaining_time = int((announcement_time - now).total_seconds())
         if remaining_time <= 0:
             break
