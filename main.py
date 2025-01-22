@@ -1,11 +1,15 @@
-﻿import os
+import os
 import discord
 import random
 import asyncio
 from discord.ext import commands
 from datetime import datetime, timedelta
+import pytz  # เพิ่มการนำเข้า pytz
 
 from myserver import server_on
+
+# กำหนดโซนเวลาเป็น GMT+7
+tz = pytz.timezone('Asia/Bangkok')
 
 # สร้างบอทพร้อมตั้งค่า intents
 intents = discord.Intents.all()
@@ -76,7 +80,7 @@ async def lotto(ctx, hour: int, minute: int):
     chosen_numbers.clear()
 
     # ตั้งเวลาในการประกาศรางวัล
-    now = datetime.now()
+    now = datetime.now(tz)  # ใช้โซนเวลา GMT+7
     announcement_time = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if announcement_time <= now:
         announcement_time += timedelta(days=1)  # หากเวลาผ่านไปแล้ว ให้เลื่อนไปวันถัดไป
